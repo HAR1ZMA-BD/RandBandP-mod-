@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blue Team - Защита и обнаружение</title>
+    <style>
+        :root {
+            --blue: #1E90FF;
+            --blue-light: #87CEFA;
+            --blue-dark: #00008B;
+            --text: #F0F8FF;
+            --bg: #000033;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            background-image: 
+                linear-gradient(rgba(0, 0, 51, 0.9), rgba(0, 0, 51, 0.9)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="25" cy="25" r="10" fill="%231E90FF" opacity="0.2"/><circle cx="75" cy="75" r="10" fill="%231E90FF" opacity="0.2"/><circle cx="25" cy="75" r="10" fill="%231E90FF" opacity="0.2"/><circle cx="75" cy="25" r="10" fill="%231E90FF" opacity="0.2"/></svg>');
+        }
+        
+        header {
+            background-color: rgba(0, 0, 51, 0.9);
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--blue);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--blue-light);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--blue);
+            color: var(--bg);
+        }
+        
+        .active {
+            background-color: var(--blue-light);
+            color: var(--bg);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(135deg, rgba(30, 144, 255, 0.1), rgba(0, 0, 139, 0.2));
+            border-radius: 8px;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--blue-light);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: var(--blue);
+            color: var(--bg);
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--blue-light);
+            box-shadow: 0 0 15px rgba(30, 144, 255, 0.5);
+        }
+        
+        .defense-layers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .layer-card {
+            background: rgba(0, 0, 139, 0.3);
+            border-radius: 8px;
+            padding: 2rem;
+            border-top: 3px solid var(--blue);
+            transition: all 0.3s ease;
+        }
+        
+        .layer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+        }
+        
+        .layer-card h3 {
+            color: var(--blue-light);
+            margin-top: 0;
+        }
+        
+        .process {
+            margin: 4rem 0;
+            background: rgba(0, 0, 139, 0.2);
+            padding: 2rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--blue);
+        }
+        
+        .process-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(135, 206, 250, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-bottom: 3px solid var(--blue);
+        }
+        
+        .step h4 {
+            color: var(--blue-light);
+            margin-top: 0;
+        }
+        
+        /* Панель защиты */
+        .defense-panel {
+            background: rgba(0, 0, 139, 0.3);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 3rem 0;
+            border: 1px solid var(--blue);
+        }
+        
+        .defense-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .defense-option {
+            background: rgba(30, 144, 255, 0.2);
+            padding: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .defense-option:hover {
+            background: rgba(30, 144, 255, 0.3);
+            border-color: var(--blue);
+        }
+        
+        .defense-option h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--blue-light);
+        }
+        
+        /* Лог событий */
+        .event-log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 3rem 0;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--blue);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .event {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(30, 144, 255, 0.2);
+        }
+        
+        .event-time {
+            color: var(--blue-light);
+            font-size: 0.8rem;
+        }
+        
+        .event-message {
+            margin-left: 1rem;
+        }
+        
+        .alert {
+            color: #ffcc00;
+        }
+        
+        .critical {
+            color: #ff4500;
+            font-weight: bold;
+        }
+        
+        /* Статус сессии */
+        .session-info {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--blue);
+        }
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: lime;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 51, 0.9);
+            border-top: 1px solid var(--blue);
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">BlueTeam</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="red.html" class="nav-link">Red Team</a>
+                <a href="blue.html" class="nav-link active">Blue Team</a>
+                <button id="logoutBtn" class="nav-link" style="background-color: var(--blue); color: var(--bg);">Выйти</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="hero">
+            <h1>Blue Team Defense</h1>
+            <p>Проактивная защита вашей организации от киберугроз. Мы выстраиваем многослойную систему безопасности, которая обнаруживает и предотвращает атаки до того, как они нанесут ущерб.</p>
+        </section>
+        
+        <!-- Информация о сессии -->
+        <div class="session-info">
+            <div class="user-status">
+                <div class="status-indicator"></div>
+                <div>
+                    <h3 id="usernameDisplay">Имя пользователя</h3>
+                    <p>Сессия: <span id="sessionDisplay">Название сессии</span></p>
+                </div>
+            </div>
+            <p>Статус Red Team: <span id="redTeamStatus">Не подключен</span></p>
+        </div>
+        
+        <section id="defense" class="defense-layers">
+            <div class="layer-card">
+                <h3>Предотвращение</h3>
+                <p>Реализация защитных мер для блокировки известных угроз: брандмауэры, антивирусы, системы предотвращения вторжений.</p>
+            </div>
+            
+            <div class="layer-card">
+                <h3>Обнаружение</h3>
+                <p>Мониторинг сети и систем на предмет подозрительной активности с помощью SIEM-систем и других инструментов.</p>
+            </div>
+            
+            <div class="layer-card">
+                <h3>Реагирование</h3>
+                <p>Разработанные процедуры для быстрого и эффективного реагирования на инциденты информационной безопасности.</p>
+            </div>
+            
+            <div class="layer-card">
+                <h3>Восстановление</h3>
+                <p>Планы восстановления после атак, включая резервное копирование и процедуры возврата к нормальной работе.</p>
+            </div>
+            
+            <div class="layer-card">
+                <h3>Анализ угроз</h3>
+                <p>Постоянный сбор и анализ информации о новых угрозах и уязвимостях, актуальных для вашей организации.</p>
+            </div>
+            
+            <div class="layer-card">
+                <h3>Обучение сотрудников</h3>
+                <p>Повышение осведомленности персонала о киберугрозах и методах социальной инженерии.</p>
+            </div>
+        </section>
+        
+        <!-- Панель защиты -->
+        <section class="defense-panel">
+            <h2>Панель защитных действий</h2>
+            <p>Выберите действие для защиты от атак Red Team:</p>
+            
+            <div class="defense-options">
+                <div class="defense-option" data-defense="block">
+                    <h4>Блокировка атаки</h4>
+                    <p>Заблокировать текущую атаку</p>
+                </div>
+                
+                <div class="defense-option" data-defense="analyze">
+                    <h4>Анализ угрозы</h4>
+                    <p>Исследовать природу атаки</p>
+                </div>
+                
+                <div class="defense-option" data-defense="isolate">
+                    <h4>Изоляция системы</h4>
+                    <p>Изолировать скомпрометированные системы</p>
+                </div>
+                
+                <div class="defense-option" data-defense="patch">
+                    <h4>Установка патча</h4>
+                    <p>Закрыть эксплуатируемую уязвимость</p>
+                </div>
+                
+                <div class="defense-option" data-defense="monitor">
+                    <h4>Усиленный мониторинг</h4>
+                    <p>Увеличить уровень мониторинга</p>
+                </div>
+                
+                <div class="defense-option" data-defense="report">
+                    <h4>Создание отчета</h4>
+                    <p>Задокументировать инцидент</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Лог событий -->
+        <section>
+            <h2>Лог событий</h2>
+            <div class="event-log" id="eventLog">
+                <div class="event">
+                    <span class="event-time">[12:34:56]</span>
+                    <span class="event-message">Система: Добро пожаловать в Blue Team операцию</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="process">
+            <h2>Процесс работы Blue Team</h2>
+            <p>Наш подход к защите основан на непрерывном цикле улучшений и адаптации к меняющемуся ландшафту угроз.</p>
+            
+            <div class="process-steps">
+                <div class="step">
+                    <h4>1. Подготовка</h4>
+                    <p>Разработка политик безопасности, настройка инструментов мониторинга, создание базовых показателей нормальной активности.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>2. Защита</h4>
+                    <p>Внедрение технических и организационных мер для предотвращения атак и минимизации поверхности атаки.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>3. Обнаружение</h4>
+                    <p>Непрерывный мониторинг систем на предмет аномалий и признаков компрометации.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>4. Реагирование</h4>
+                    <p>Действия по изоляции и устранению угрозы, сбор доказательств для последующего анализа.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>5. Восстановление</h4>
+                    <p>Возврат систем к нормальной работе, проверка на отсутствие бэкдоров и других следов атаки.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>6. Улучшение</h4>
+                    <p>Анализ инцидента и внедрение улучшений для предотвращения подобных атак в будущем.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <p>© 2023 Blue Team Defense. Все права защищены.</p>
+    </footer>
+
+    <script>
+        // Получаем данные пользователя
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        // Отображаем информацию о пользователе
+        document.getElementById('usernameDisplay').textContent = currentUser.username;
+        document.getElementById('sessionDisplay').textContent = currentUser.session;
+        
+        // Обработчик выхода
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+        
+        // WebSocket соединение
+        const socket = new WebSocket('ws://localhost:8080');
+        
+        socket.onopen = function(e) {
+            addEventToLog('Соединение с сервером установлено');
+            
+            // Отправляем информацию о пользователе
+            socket.send(JSON.stringify({
+                type: 'auth',
+                user: currentUser.username,
+                role: currentUser.role,
+                session: currentUser.session
+            }));
+        };
+        
+        socket.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'event') {
+                addEventToLog(message.text, message.sender);
+            } else if (message.type === 'status') {
+                if (message.role === 'red') {
+                    document.getElementById('redTeamStatus').textContent = 
+                        message.connected ? 'Подключен' : 'Не подключен';
+                }
+            } else if (message.type === 'attack') {
+                addEventToLog(`Обнаружена атака: ${getAttackName(message.attack)}`, 'Red Team', 'critical');
+                
+                // Можно автоматически запустить защитные меры
+                // setTimeout(() => {
+                //     launchDefense('block');
+                // }, 2000);
+            } else if (message.type === 'defense_result') {
+                addEventToLog(`Результат защиты "${message.defense}": ${message.success ? 'УСПЕХ' : 'ПРОВАЛ'}`, 'Система');
+            }
+        };
+        
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                addEventToLog(`Соединение закрыто чисто, код=${event.code} причина=${event.reason}`);
+            } else {
+                addEventToLog('Соединение прервано');
+            }
+        };
+        
+        socket.onerror = function(error) {
+            addEventToLog(`Ошибка: ${error.message}`);
+        };
+        
+        // Обработчики защитных действий
+        document.querySelectorAll('.defense-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const defenseType = this.getAttribute('data-defense');
+                launchDefense(defenseType);
+            });
+        });
+        
+        // Функция запуска защиты
+        function launchDefense(defenseType) {
+            const defenseName = getDefenseName(defenseType);
+            addEventToLog(`Запуск защиты: ${defenseName}`, 'Вы');
+            
+            // Отправляем информацию о защите на сервер
+            socket.send(JSON.stringify({
+                type: 'defense',
+                defense: defenseType,
+                user: currentUser.username,
+                session: currentUser.session
+            }));
+        }
+        
+        // Функция добавления события в лог
+        function addEventToLog(message, sender = 'Система', level = 'info') {
+            const now = new Date();
+            const timeString = now.toTimeString().substring(0, 8);
+            
+            const eventLog = document.getElementById('eventLog');
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event';
+            
+            eventElement.innerHTML = `
+                <span class="event-time">[${timeString}]</span>
+                <span class="event-message ${level}">${sender}: ${message}</span>
+            `;
+            
+            eventLog.appendChild(eventElement);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        // Функция получения названия защиты
+        function getDefenseName(type) {
+            const defenses = {
+                block: 'Блокировка атаки',
+                analyze: 'Анализ угрозы',
+                isolate: 'Изоляция системы',
+                patch: 'Установка патча',
+                monitor: 'Усиленный мониторинг',
+                report: 'Создание отчета'
+            };
+            
+            return defenses[type] || type;
+        }
+        
+        // Функция получения названия атаки
+        function getAttackName(type) {
+            const attacks = {
+                phishing: 'Фишинговая атака',
+                exploit: 'Эксплуатация уязвимости',
+                bruteforce: 'Брутфорс атака',
+                ddos: 'DDoS атака',
+                lateral: 'Латеральное перемещение',
+                exfiltration: 'Эксфильтрация данных'
+            };
+            
+            return attacks[type] || type;
+        }
+        
+        // Проверяем, что пользователь действительно Blue Team
+        if (currentUser.role !== 'blue') {
+            alert('Эта страница только для Blue Team!');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
