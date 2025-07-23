@@ -72,10 +72,6 @@
             border-color: var(--purple);
         }
         
-        .ctf {
-            border-color: #ffcc00;
-        }
-        
         h2 {
             margin-top: 0;
             color: white;
@@ -117,15 +113,6 @@
         
         .btn-purple:hover {
             background-color: #9900cc;
-        }
-        
-        .btn-ctf {
-            background-color: #ffcc00;
-            color: #333;
-        }
-        
-        .btn-ctf:hover {
-            background-color: #e6b800;
         }
         
         .features {
@@ -256,12 +243,6 @@
                 <p>Совместная работа красной и синей команд для анализа тактик атак и защиты. Улучшение взаимодействия между командами.</p>
                 <button id="purpleTeamBtn" class="btn btn-purple">Выбрать режим</button>
             </div>
-            
-            <div class="mode-card ctf">
-                <h2>CTF-режимы</h2>
-                <p>Соревновательные задания на взлом и защиту систем. Решение задач по криптографии, реверс-инжинирингу, веб-эксплуатации и другим аспектам безопасности.</p>
-                <button id="ctfBtn" class="btn btn-ctf">Выбрать режим</button>
-            </div>
         </section>
         
         <section class="features">
@@ -359,10 +340,6 @@
         
         document.getElementById('purpleTeamBtn').addEventListener('click', function() {
             showAuthModal('observer');
-        });
-        
-        document.getElementById('ctfBtn').addEventListener('click', function() {
-            alert('CTF режим будет доступен в следующем обновлении');
         });
         
         // Элементы модального окна
