@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Team - Атакующие операции</title>
+    <style>
+        :root {
+            --red: #FF4500;
+            --red-light: #FF6347;
+            --red-dark: #8B0000;
+            --text: #FFFAFA;
+            --bg: #0D0208;
+        }
+        
+        body {
+            font-family: 'Consolas', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            background-image: 
+                linear-gradient(rgba(13, 2, 8, 0.9), rgba(13, 2, 8, 0.9)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="50" height="50" x="0" y="0" fill="%23FF4500" opacity="0.1"/><rect width="50" height="50" x="50" y="50" fill="%23FF4500" opacity="0.1"/></svg>');
+        }
+        
+        header {
+            background-color: rgba(13, 2, 8, 0.9);
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--red);
+            box-shadow: 0 2px 10px rgba(255, 69, 0, 0.3);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--red);
+            text-decoration: none;
+            text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .nav-link:hover {
+            border-color: var(--red);
+            color: var(--red-light);
+        }
+        
+        .active {
+            background-color: var(--red);
+            color: var(--bg);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--red);
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--red);
+            text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: transparent;
+            color: var(--red);
+            border: 1px solid var(--red);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--red);
+            color: var(--bg);
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);
+        }
+        
+        .mission {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin: 4rem 0;
+        }
+        
+        .mission-text h2 {
+            color: var(--red-light);
+            margin-top: 0;
+        }
+        
+        .mission-image {
+            background: linear-gradient(45deg, var(--red-dark), var(--red));
+            height: 300px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+        }
+        
+        .techniques {
+            margin: 4rem 0;
+        }
+        
+        .technique-card {
+            background: rgba(139, 0, 0, 0.2);
+            border-left: 3px solid var(--red);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .technique-card:hover {
+            background: rgba(139, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .technique-card h3 {
+            color: var(--red-light);
+            margin-top: 0;
+        }
+        
+        /* Панель атак */
+        .attack-panel {
+            background: rgba(139, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 3rem 0;
+            border: 1px solid var(--red);
+        }
+        
+        .attack-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .attack-option {
+            background: rgba(255, 69, 0, 0.2);
+            padding: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .attack-option:hover {
+            background: rgba(255, 69, 0, 0.3);
+            border-color: var(--red);
+        }
+        
+        .attack-option h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--red-light);
+        }
+        
+        /* Лог событий */
+        .event-log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 3rem 0;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--red);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .event {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 69, 0, 0.2);
+        }
+        
+        .event-time {
+            color: var(--red-light);
+            font-size: 0.8rem;
+        }
+        
+        .event-message {
+            margin-left: 1rem;
+        }
+        
+        /* Статус сессии */
+        .session-info {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--red);
+        }
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: lime;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(13, 2, 8, 0.9);
+            border-top: 1px solid var(--red);
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .mission {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">RedTeam</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Главная</a>
+                <a href="red.html" class="nav-link active">Red Team</a>
+                <a href="blue.html" class="nav-link">Blue Team</a>
+                <button id="logoutBtn" class="nav-link" style="background-color: var(--red); color: var(--bg);">Выйти</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <section class="hero">
+            <h1>Red Team Operations</h1>
+            <p>Имитация реальных атакующих тактик для тестирования защитных механизмов вашей организации. Мы думаем как хакеры, чтобы вы могли защититься лучше.</p>
+        </section>
+        
+        <!-- Информация о сессии -->
+        <div class="session-info">
+            <div class="user-status">
+                <div class="status-indicator"></div>
+                <div>
+                    <h3 id="usernameDisplay">Имя пользователя</h3>
+                    <p>Сессия: <span id="sessionDisplay">Название сессии</span></p>
+                </div>
+            </div>
+            <p>Статус Blue Team: <span id="blueTeamStatus">Не подключен</span></p>
+        </div>
+        
+        <section id="mission" class="mission">
+            <div class="mission-text">
+                <h2>Наша миссия</h2>
+                <p>Red Team - это группа этических хакеров, которые имитируют методы, тактики и процедуры реальных злоумышленников, чтобы выявить уязвимости в защите организации до того, как это сделают настоящие атакующие.</p>
+                <p>Мы проводим реалистичные симуляции атак, используя те же инструменты и подходы, что и киберпреступники, но с одной важной разницей - мы на вашей стороне.</p>
+            </div>
+            <div class="mission-image">
+                <div>Имитация APT-атак<br>Тестирование на проникновение<br>Социальная инженерия</div>
+            </div>
+        </section>
+        
+        <!-- Панель атак -->
+        <section class="attack-panel">
+            <h2>Панель атакующих действий</h2>
+            <p>Выберите действие для тестирования защиты Blue Team:</p>
+            
+            <div class="attack-options">
+                <div class="attack-option" data-attack="phishing">
+                    <h4>Фишинговая атака</h4>
+                    <p>Отправить фишинговое письмо</p>
+                </div>
+                
+                <div class="attack-option" data-attack="exploit">
+                    <h4>Эксплуатация уязвимости</h4>
+                    <p>Использовать CVE-2023-1234</p>
+                </div>
+                
+                <div class="attack-option" data-attack="bruteforce">
+                    <h4>Брутфорс атака</h4>
+                    <p>Попытка подбора паролей</p>
+                </div>
+                
+                <div class="attack-option" data-attack="ddos">
+                    <h4>DDoS атака</h4>
+                    <p>Атака на отказ в обслуживании</p>
+                </div>
+                
+                <div class="attack-option" data-attack="lateral">
+                    <h4>Латеральное перемещение</h4>
+                    <p>Попытка перемещения внутри сети</p>
+                </div>
+                
+                <div class="attack-option" data-attack="exfiltration">
+                    <h4>Эксфильтрация данных</h4>
+                    <p>Попытка вывода данных</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Лог событий -->
+        <section>
+            <h2>Лог событий</h2>
+            <div class="event-log" id="eventLog">
+                <div class="event">
+                    <span class="event-time">[12:34:56]</span>
+                    <span class="event-message">Система: Добро пожаловать в Red Team операцию</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="techniques">
+            <h2>Техники Red Team</h2>
+            
+            <div class="technique-card">
+                <h3>Разведка и сбор информации</h3>
+                <p>Пассивный и активный сбор данных о целевой организации: домены, IP-адреса, сотрудники, используемые технологии.</p>
+            </div>
+            
+            <div class="technique-card">
+                <h3>Фишинг и социальная инженерия</h3>
+                <p>Имитация атак через email, телефонные звонки и другие каналы коммуникации для проверки осведомленности сотрудников.</p>
+            </div>
+            
+            <div class="technique-card">
+                <h3>Эксплуатация уязвимостей</h3>
+                <p>Использование известных и нуль-дневных уязвимостей в ПО и системах для получения доступа.</p>
+            </div>
+            
+            <div class="technique-card">
+                <h3>Латеральное перемещение</h3>
+                <p>Передвижение по сети после первоначального взлома для поиска ценных активов и повышения привилегий.</p>
+            </div>
+            
+            <div class="technique-card">
+                <h3>Сохранение присутствия</h3>
+                <p>Имитация долгосрочного присутствия атакующего в системе для проверки возможностей обнаружения.</p>
+            </div>
+            
+            <div class="technique-card">
+                <h3>Эксфильтрация данных</h3>
+                <p>Тестирование механизмов защиты данных путем попытки их несанкционированного извлечения.</p>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <p>© 2023 Red Team Operations. Все права защищены.</p>
+    </footer>
+
+    <script>
+        // Получаем данные пользователя
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        // Отображаем информацию о пользователе
+        document.getElementById('usernameDisplay').textContent = currentUser.username;
+        document.getElementById('sessionDisplay').textContent = currentUser.session;
+        
+        // Обработчик выхода
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+        
+        // WebSocket соединение
+        const socket = new WebSocket('ws://localhost:8080');
+        
+        socket.onopen = function(e) {
+            addEventToLog('Соединение с сервером установлено');
+            
+            // Отправляем информацию о пользователе
+            socket.send(JSON.stringify({
+                type: 'auth',
+                user: currentUser.username,
+                role: currentUser.role,
+                session: currentUser.session
+            }));
+        };
+        
+        socket.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'event') {
+                addEventToLog(message.text, message.sender);
+            } else if (message.type === 'status') {
+                if (message.role === 'blue') {
+                    document.getElementById('blueTeamStatus').textContent = 
+                        message.connected ? 'Подключен' : 'Не подключен';
+                }
+            } else if (message.type === 'attack_result') {
+                addEventToLog(`Результат атаки "${message.attack}": ${message.success ? 'УСПЕХ' : 'ПРОВАЛ'}`, 'Система');
+            }
+        };
+        
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                addEventToLog(`Соединение закрыто чисто, код=${event.code} причина=${event.reason}`);
+            } else {
+                addEventToLog('Соединение прервано');
+            }
+        };
+        
+        socket.onerror = function(error) {
+            addEventToLog(`Ошибка: ${error.message}`);
+        };
+        
+        // Обработчики атакующих действий
+        document.querySelectorAll('.attack-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const attackType = this.getAttribute('data-attack');
+                launchAttack(attackType);
+            });
+        });
+        
+        // Функция запуска атаки
+        function launchAttack(attackType) {
+            const attackName = getAttackName(attackType);
+            addEventToLog(`Запуск атаки: ${attackName}`, 'Вы');
+            
+            // Отправляем информацию об атаке на сервер
+            socket.send(JSON.stringify({
+                type: 'attack',
+                attack: attackType,
+                user: currentUser.username,
+                session: currentUser.session
+            }));
+        }
+        
+        // Функция добавления события в лог
+        function addEventToLog(message, sender = 'Система') {
+            const now = new Date();
+            const timeString = now.toTimeString().substring(0, 8);
+            
+            const eventLog = document.getElementById('eventLog');
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event';
+            
+            eventElement.innerHTML = `
+                <span class="event-time">[${timeString}]</span>
+                <span class="event-message">${sender}: ${message}</span>
+            `;
+            
+            eventLog.appendChild(eventElement);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+        
+        // Функция получения названия атаки
+        function getAttackName(type) {
+            const attacks = {
+                phishing: 'Фишинговая атака',
+                exploit: 'Эксплуатация уязвимости',
+                bruteforce: 'Брутфорс атака',
+                ddos: 'DDoS атака',
+                lateral: 'Латеральное перемещение',
+                exfiltration: 'Эксфильтрация данных'
+            };
+            
+            return attacks[type] || type;
+        }
+        
+        // Проверяем, что пользователь действительно Red Team
+        if (currentUser.role !== 'red') {
+            alert('Эта страница только для Red Team!');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
